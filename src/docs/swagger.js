@@ -11,11 +11,11 @@ const swaggerDefinition = {
 
   servers: [
     {
-      url: "http://localhost:5000",
-      description: "Local server",
+      url: "https://portfolio-backend-66bu.onrender.com/",
+      description: "Development",
     },
     {
-      url: "https://your-deployed-url.onrender.com",
+      url: "https://portfolio-backend-66bu.onrender.com/",
       description: "Production server",
     },
   ],

@@ -5,8 +5,23 @@ const { loginValidator } = require("../validators/auth.validator");
 const validateRequest = require("../middlewares/validate.middleware");
 const protect = require("../middlewares/auth.middleware");
 const { authorize } = require ("../middlewares/role.middleware");
+const { loginValidator, registerValidator } = require("../validators/auth.validator")
 
 
+
+/**
+ * @route   POST /api/auth/register
+ * @desc    Create a new admin or editor (super-admin only)
+ * @access  Private (super-admin)
+ */
+router.post(
+  "/register",
+  protect,
+  authorize("super-admin"),
+  registerValidator,
+  validateRequest,
+  authController.register
+);
 
 /**
  * @route   POST /api/auth/login

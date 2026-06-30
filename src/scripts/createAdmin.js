@@ -1,11 +1,15 @@
 const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 const User = require("../models/User");
 
 const createAdmin = async () => {
   try {
+    if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
+      console.error("ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env");
+      process.exit(1);
+    }
+
     await mongoose.connect(process.env.MONGO_URI);
 
     const existingAdmin = await User.findOne({
@@ -17,34 +21,18 @@ const createAdmin = async () => {
       process.exit();
     }
 
-    const hashedPassword =
-      await bcrypt.hash(
-        process.env.ADMIN_PASSWORD,
-        12
-      );
-
-       await Project.create([
-  {
-    title: "...",
-    imageUrl: "...",
-  },
-    ]);
-
     await User.create({
       name: "Portfolio Admin",
       email: process.env.ADMIN_EMAIL,
-      password: hashedPassword,
+      password: process.env.ADMIN_PASSWORD, // hashed automatically by pre("save") hook
       role: "super-admin",
     });
 
-    console.log(
-      "Admin created successfully"
-    );
+    console.log("Admin created successfully");
 
     process.exit();
   } catch (error) {
     console.error(error);
-
     process.exit(1);
   }
 };
