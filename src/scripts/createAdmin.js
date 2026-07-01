@@ -1,10 +1,16 @@
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
 const mongoose = require("mongoose");
 require("dotenv").config();
-
 const User = require("../models/User");
+
 
 const createAdmin = async () => {
   try {
+    console.log("Connecting to:", process.env.MONGO_URI ? "URI found" : "URI MISSING" );
+    console.log("Admin Email:", process.env.ADMIN_EMAIL ? "EMAIL found" : "EMAIL MISSING" );
+    console.log("Admin Password:", process.env.ADMIN_PASSWORD ? "PASSWORD found" : "PASSWORD MISSING" );
+
     if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
       console.error("ADMIN_EMAIL and ADMIN_PASSWORD must be set in .env");
       process.exit(1);
