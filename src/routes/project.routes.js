@@ -2,18 +2,34 @@ const express = require("express");
 const router = express.Router();
 const projectController = require("../controllers/project.controller");
 const { authorize } = require("../middlewares/role.middleware");
-
 const protect = require("../middlewares/auth.middleware");
+const upload = require("../middlewares/upload.middleware");
 
+// Public
 router.get("/", projectController.getAll);
-router.get( "/:id", projectController.getById);
-router.post( "/", protect, projectController.create);
-router.put(  "/:id", protect, projectController.update);
-router.delete("/:id",
-  protect, authorize("admin", "super-admin"), projectController.delete);
+router.get("/:id", projectController.getById);
 
-router.delete("/projects/:id",
-  protect, authorize("admin", "super-admin"),
+
+// Protected — multer parses multipart/form-data
+router.post(
+  "/",
+  protect,
+  upload.single("image"),
+  projectController.create
+);
+
+router.put(
+  "/:id",
+  protect,
+  upload.single("image"),
+  projectController.update
+);
+
+// Delete — admin/super-admin only
+router.delete(
+  "/:id",
+  protect,
+  authorize("admin", "super-admin"),
   projectController.delete
 );
 
