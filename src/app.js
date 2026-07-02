@@ -27,8 +27,11 @@ app.use(
     origin: function (origin, callback) {
       const allowed = [
         "http://localhost:5173",
+        "http://localhost:3000",
+        "https://timothyportfoliosite.netlify.app",
         process.env.CLIENT_URL,
-      ];
+      ].filter(Boolean);
+      
       if (!origin || allowed.includes(origin)) {
         callback(null, true);
       } else {
