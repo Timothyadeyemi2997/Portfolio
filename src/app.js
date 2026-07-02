@@ -24,7 +24,17 @@ app.use(helmet());
 // Enable CORS (frontend Access)
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "*",
+    origin: function (origin, callback) {
+      const allowed = [
+        "http://localhost:5173",
+        process.env.CLIENT_URL,
+      ];
+      if (!origin || allowed.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
