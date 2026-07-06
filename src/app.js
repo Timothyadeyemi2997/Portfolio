@@ -76,6 +76,8 @@ app.get("/api/health", (req, res) => {
   res.status(200).json({
     success: true,
     message: "The Portfolio API is running 🚀",
+    status: "OK",
+    timestamp: new Date().toISOString(),
   });
 });
 
