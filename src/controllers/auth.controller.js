@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { sendLoginNotification } = require("../utils/sendLoginNotification");
 
 const signToken = (user) =>
   jwt.sign(
@@ -13,17 +14,56 @@ module.exports = {
     try {
       const { email, password } = req.body;
 
+            // Get device info from request
+      const ip =
+        req.headers["x-forwarded-for"]?.split(",")[0] ||
+        req.socket.remoteAddress || "Unknown";
+      const userAgent = req.headers["user-agent"] || "Unknown";
+      const time = new Date().toLocaleString("en-US", {
+        timeZone: "Africa/Lagos",
+      });
+
       const user = await User.findOne({ email }).select("+password");
+
       if (!user) {
+        await sendLoginNotification({
+          attemptedEmail: email,
+          ip,
+          userAgent,
+          time,
+          status: "❌ Failed - Email Not Found",
+        });
+
         return res.status(401).json({ success: false, message: "Invalid credentials" });
       }
 
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
-        return res.status(401).json({ success: false, message: "Invalid credentials" });
+        await sendLoginNotification({
+          attemptedEmail: email,
+          ip,
+          userAgent,
+          time,
+          status: "❌ Failed - Wrong Password",
+        });
+
+        return res.status(401).json({
+          success: false,
+          message: "Invalid credentials",
+        });
       }
 
       const token = signToken(user);
+
+      await sendLoginNotification({
+        attemptedEmail: email,
+        ip,
+        userAgent,
+        time,
+        status: "✅ Successful",
+        userName: user.name,
+        userRole: user.role,
+      });
 
       return res.status(200).json({
         success: true,
@@ -39,7 +79,6 @@ module.exports = {
       next(error);
     }
   },
-
   // Protected — only callable by an authenticated super-admin
   register: async (req, res, next) => {
     try {
